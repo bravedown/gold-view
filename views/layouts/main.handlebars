@@ -8,11 +8,16 @@
 
     <title>Document</title>
 </head>
-<body>
-    <div class="jumbotron bg-light">
-        <h1 class="display-4">Gold View</h1>
-    </div>
-    <div class="container">
+<body style="background-color: #ffff66;">
+    <nav class="navbar navbar-light bg-light mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand">Gold View</a>
+            <form class="d-flex">
+                <button class="d-flex btn btn-outline-danger" id="logout">Log Out</button>
+            </form>
+        </div>
+    </nav>
+    <div class="container" >
         
         <div class="row">
             <div class="col-md-3">
@@ -69,7 +74,10 @@
         $(document).on("click", ".stock", function() {
             const stock = $(this).text();
             renderGraph(stock);
-        })
+        });
+        $('#logout').on("click", () => {
+            $.get('/logout');
+        });
 	</script>
 </body>
 </html>
