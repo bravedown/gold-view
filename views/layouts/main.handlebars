@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="jumbotron bg-light">
+        <h1 class="display-4">Gold View</h1>
+    </div>
+    <div class="container">
+        
+        <div class="row">
+            <div class="col-md-3">
+                <form id="add-favorite">
+                    <div class="input-group pb-2">
+                        <input class="form-control" type="text" placeholder="Stock i.e. TSLA">
+                        <button type="submit" class="btn btn-success"><strong>+</strong></button>
+                    </div>
+                </form>
+                <ul class="list-group" id="favorites">
+                    {{{body}}}
+                </ul>
+            </div>
+            <div id="graph" class="col-md-9"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/lightweight-charts@3.2.0/dist/lightweight-charts.standalone.production.js"></script>
+
+    <script>
+        async function renderGraph(symbol1, range = "1y") {
+            $("#graph").empty();
+            console.log(symbol1);
+			const chartProperties = {
+				width: 800,
+				height: 600,
+				timeScale: {
+					timeVisible: true,
+					secondsVisible: false,
+                    fixLeftEdge: true
+				},
+				title: `${symbol1} priced in Gold grams`
+			}
+
+			const chartEl = document.getElementById("graph");
+			const chart = LightweightCharts.createChart(chartEl, chartProperties);
+			const candlesticks = chart.addCandlestickSeries();
+			const stockData = await $.get(`/api/stocks/${symbol1}/GC=F/${range}`);
+            console.log(stockData);
+            candlesticks.setData(stockData);
+
+        }
+		$("#add-favorite").on("submit", (event) => {
+			event.preventDefault();
+            const stockName = $(event.target[0]).val();
+            $.post('/api/favorites', {
+                symbol: stockName,
+                UserId: 1
+            })
+            const newEl = $(`<li class="list-group-item stock" data-id="null" role="button">${stockName}</li>`);
+            $('#favorites').prepend(newEl);
+		});
+        $(document).on("click", ".stock", function() {
+            const stock = $(this).text();
+            renderGraph(stock);
+        })
+	</script>
+</body>
+</html>
